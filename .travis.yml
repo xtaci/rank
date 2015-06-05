@@ -8,4 +8,6 @@ install:
     - go install rank
 before_script:
 script:
-    - exit 0
+    - cd $GOPATH
+    - rank &
+    - go test -v ./...
