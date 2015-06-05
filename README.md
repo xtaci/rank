@@ -1,2 +1,1 @@
-# rank
-ranking server
+# Ranking Service
