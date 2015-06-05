@@ -17,14 +17,20 @@ var (
 
 type server struct {
 	ranks map[string]*RankSet
-	sync.Mutex
+	sync.RWMutex
 }
 
 func (s *server) init() {
 	s.ranks = make(map[string]*RankSet)
 }
 
-func (s *server) lock_do(f func()) {
+func (s *server) lock_read(f func()) {
+	s.RLock()
+	defer s.RUnlock()
+	f()
+}
+
+func (s *server) lock_write(f func()) {
 	s.Lock()
 	defer s.Unlock()
 	f()
@@ -33,7 +39,7 @@ func (s *server) lock_do(f func()) {
 func (s *server) RankChange(ctx context.Context, in *pb.Ranking_Change) (*pb.Ranking_NullResult, error) {
 	// check name existence
 	var rs *RankSet
-	s.lock_do(func() {
+	s.lock_write(func() {
 		rs = s.ranks[in.Name]
 		if rs == nil {
 			rs = &RankSet{}
@@ -49,7 +55,7 @@ func (s *server) RankChange(ctx context.Context, in *pb.Ranking_Change) (*pb.Ran
 
 func (s *server) QueryRankRange(ctx context.Context, in *pb.Ranking_Range) (*pb.Ranking_RankList, error) {
 	var rs *RankSet
-	s.lock_do(func() {
+	s.lock_read(func() {
 		rs = s.ranks[in.Name]
 	})
 
@@ -63,7 +69,7 @@ func (s *server) QueryRankRange(ctx context.Context, in *pb.Ranking_Range) (*pb.
 
 func (s *server) QueryUsers(ctx context.Context, in *pb.Ranking_Users) (*pb.Ranking_UserList, error) {
 	var rs *RankSet
-	s.lock_do(func() {
+	s.lock_read(func() {
 		rs = s.ranks[in.Name]
 	})
 
