@@ -9,5 +9,5 @@ install:
 before_script:
 script:
     - cd $GOPATH
-    - rank &
+    - $GOPATH/bin/rank &
     - go test -v rank 
