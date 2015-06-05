@@ -2,6 +2,15 @@
 // source: rankserver.proto
 // DO NOT EDIT!
 
+/*
+Package proto is a generated protocol buffer package.
+
+It is generated from these files:
+	rankserver.proto
+
+It has these top-level messages:
+	Ranking
+*/
 package proto
 
 import proto1 "github.com/golang/protobuf/proto"
@@ -26,8 +35,9 @@ func (m *Ranking) String() string { return proto1.CompactTextString(m) }
 func (*Ranking) ProtoMessage()    {}
 
 type Ranking_Change struct {
-	UserId int32 `protobuf:"varint,1,opt,name=user_id" json:"user_id,omitempty"`
-	Score  int32 `protobuf:"varint,2,opt,name=score" json:"score,omitempty"`
+	UserId int32  `protobuf:"varint,1,opt,name=user_id" json:"user_id,omitempty"`
+	Score  int32  `protobuf:"varint,2,opt,name=score" json:"score,omitempty"`
+	Name   string `protobuf:"bytes,3,opt,name=name" json:"name,omitempty"`
 }
 
 func (m *Ranking_Change) Reset()         { *m = Ranking_Change{} }
@@ -42,8 +52,9 @@ func (m *Ranking_NullResult) String() string { return proto1.CompactTextString(m
 func (*Ranking_NullResult) ProtoMessage()    {}
 
 type Ranking_Range struct {
-	StartNo int32 `protobuf:"varint,1,opt,name=start_no" json:"start_no,omitempty"`
-	EndNo   int32 `protobuf:"varint,2,opt,name=end_no" json:"end_no,omitempty"`
+	StartNo int32  `protobuf:"varint,1,opt,name=start_no" json:"start_no,omitempty"`
+	EndNo   int32  `protobuf:"varint,2,opt,name=end_no" json:"end_no,omitempty"`
+	Name    string `protobuf:"bytes,3,opt,name=name" json:"name,omitempty"`
 }
 
 func (m *Ranking_Range) Reset()         { *m = Ranking_Range{} }
@@ -61,6 +72,7 @@ func (*Ranking_RankList) ProtoMessage()    {}
 
 type Ranking_Users struct {
 	UserIds []int32 `protobuf:"varint,1,rep,packed,name=user_ids" json:"user_ids,omitempty"`
+	Name    string  `protobuf:"bytes,2,opt,name=name" json:"name,omitempty"`
 }
 
 func (m *Ranking_Users) Reset()         { *m = Ranking_Users{} }
