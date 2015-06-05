@@ -10,4 +10,4 @@ before_script:
 script:
     - cd $GOPATH
     - rank &
-    - go test -v ./...
+    - go test -v rank 
