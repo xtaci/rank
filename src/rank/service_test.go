@@ -21,7 +21,7 @@ func TestRankChange(t *testing.T) {
 	c := pb.NewRankingServiceClient(conn)
 
 	// Contact the server and print out its response.
-	_, err = c.RankChange(context.Background(), &pb.Ranking_Change{1, 100})
+	_, err = c.RankChange(context.Background(), &pb.Ranking_Change{1, 100, "testkey"})
 	if err != nil {
 		t.Fatalf("could not query: %v", err)
 	}

@@ -16,10 +16,9 @@ type RankSet struct {
 	sync.RWMutex
 }
 
-// 重置排名集
-func (r *RankSet) Reset() {
+// 初始化排名集
+func (r *RankSet) init() {
 	r.M = make(map[int32]int32)
-	r.R = dos.Tree{}
 }
 
 // 排名更新
