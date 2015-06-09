@@ -2,6 +2,7 @@ package main
 
 import (
 	log "github.com/GameGophers/nsq-logger"
+	"gopkg.in/vmihailenco/msgpack.v2"
 	"sync"
 )
 
@@ -90,4 +91,29 @@ func (r *RankSet) Rank(userid int32) (rank int32, score int32) {
 
 	rankno, _ := r.R.Locate(r.M[userid], userid)
 	return int32(rankno), r.M[userid]
+}
+
+// 序列化
+func (r *RankSet) Marshal() ([]byte, error) {
+	r.RLock()
+	defer r.RUnlock()
+	return msgpack.Marshal(r.M)
+}
+
+func (r *RankSet) Unmarshal(bin []byte) error {
+	m := make(map[int32]int32)
+	r.Lock()
+	defer r.Unlock()
+	err := msgpack.Unmarshal(bin, &m)
+	if err != nil {
+		return err
+	}
+
+	// 还原
+	r.M = m
+	for id, score := range m {
+		r.R.Insert(score, id)
+	}
+
+	return nil
 }
