@@ -30,13 +30,13 @@ var (
 
 type server struct {
 	ranks   map[string]*RankSet
-	changes chan string
+	pending chan string
 	sync.RWMutex
 }
 
 func (s *server) init() {
 	s.ranks = make(map[string]*RankSet)
-	s.changes = make(chan string, CHANGES_SIZE)
+	s.pending = make(chan string, CHANGES_SIZE)
 	s.load()
 	go s.persistence_task()
 }
@@ -67,7 +67,7 @@ func (s *server) RankChange(ctx context.Context, in *pb.Ranking_Change) (*pb.Ran
 
 	// apply update one the rankset
 	rs.Update(in.UserId, in.Score)
-	s.changes <- in.Name
+	s.pending <- in.Name
 	return &pb.Ranking_NullResult{}, nil
 }
 
@@ -115,7 +115,7 @@ func (s *server) persistence_task() {
 
 	for {
 		select {
-		case key := <-s.changes:
+		case key := <-s.pending:
 			changes[key] = true
 		case <-timer:
 			s.dump_changes(db, changes)
