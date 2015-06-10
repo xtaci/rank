@@ -125,7 +125,7 @@ func (s *server) persistence_task() {
 		case <-sig:
 			s.dump_changes(db, changes)
 			db.Close()
-			os.Exit(-1)
+			os.Exit(0)
 		}
 	}
 }
