@@ -37,7 +37,7 @@ type server struct {
 func (s *server) init() {
 	s.ranks = make(map[string]*RankSet)
 	s.pending = make(chan string, CHANGES_SIZE)
-	s.load()
+	s.restore()
 	go s.persistence_task()
 }
 
@@ -175,8 +175,8 @@ func (s *server) open_db() *bolt.DB {
 	return db
 }
 
-func (s *server) load() {
-	// load data from db file
+func (s *server) restore() {
+	// restore data from db file
 	db := s.open_db()
 	defer db.Close()
 	db.View(func(tx *bolt.Tx) error {
