@@ -119,6 +119,12 @@ func (s *server) persistence_task() {
 				s.lock_read(func() {
 					rs = s.ranks[k]
 				})
+				if rs == nil {
+					log.Error("empty rankset:", k)
+					continue
+				}
+
+				// serialization and save
 				bin, err := rs.Marshal()
 				if err != nil {
 					log.Critical("cannot marshal:", err)
