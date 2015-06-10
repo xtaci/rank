@@ -6,8 +6,10 @@ import (
 	"github.com/boltdb/bolt"
 	"golang.org/x/net/context"
 	"os"
+	"os/signal"
 	pb "proto"
 	"sync"
+	"syscall"
 	"time"
 )
 
@@ -108,40 +110,50 @@ func (s *server) persistence_task() {
 	timer := time.After(CHECK_INTERVAL)
 	db := s.open_db()
 	changes := make(map[string]bool)
+	sig := make(chan os.Signal, 1)
+	signal.Notify(sig, syscall.SIGTERM)
+
 	for {
 		select {
 		case key := <-s.changes:
 			changes[key] = true
 		case <-timer:
-			for k := range changes {
-				// marshal
-				var rs *RankSet
-				s.lock_read(func() {
-					rs = s.ranks[k]
-				})
-				if rs == nil {
-					log.Error("empty rankset:", k)
-					continue
-				}
-
-				// serialization and save
-				bin, err := rs.Marshal()
-				if err != nil {
-					log.Critical("cannot marshal:", err)
-					os.Exit(-1)
-				}
-
-				db.Update(func(tx *bolt.Tx) error {
-					b := tx.Bucket([]byte(BOLTDB_BUCKET))
-					err := b.Put([]byte(k), bin)
-					return err
-				})
-			}
-
+			s.dump_changes(db, changes)
 			log.Infof("perisisted %v trees:", len(changes))
 			changes = make(map[string]bool)
 			timer = time.After(CHECK_INTERVAL)
+		case <-sig:
+			s.dump_changes(db, changes)
+			db.Close()
+			os.Exit(-1)
 		}
+	}
+}
+
+func (s *server) dump_changes(db *bolt.DB, changes map[string]bool) {
+	for k := range changes {
+		// marshal
+		var rs *RankSet
+		s.lock_read(func() {
+			rs = s.ranks[k]
+		})
+		if rs == nil {
+			log.Error("empty rankset:", k)
+			continue
+		}
+
+		// serialization and save
+		bin, err := rs.Marshal()
+		if err != nil {
+			log.Critical("cannot marshal:", err)
+			os.Exit(-1)
+		}
+
+		db.Update(func(tx *bolt.Tx) error {
+			b := tx.Bucket([]byte(BOLTDB_BUCKET))
+			err := b.Put([]byte(k), bin)
+			return err
+		})
 	}
 }
 
