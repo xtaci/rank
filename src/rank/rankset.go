@@ -154,7 +154,7 @@ func (r *RankSet) Rank(userid int32) (rank int32, score int32) {
 		rankno, _ := r.R.Locate(r.M[userid], userid)
 		return int32(rankno), r.M[userid]
 	}
-	return -1, -1
+	return
 }
 
 // serialization
