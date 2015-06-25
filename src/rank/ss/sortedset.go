@@ -9,6 +9,10 @@ type SortedSet struct {
 	set []sortpair
 }
 
+func (ss *SortedSet) Clear() {
+	ss.set = nil
+}
+
 func (ss *SortedSet) Insert(id, score int32) {
 	p := sortpair{id: id, score: score}
 	if len(ss.set) == 0 {

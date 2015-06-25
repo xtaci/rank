@@ -16,26 +16,45 @@ const (
 	LOWER_THRESHOLD = 2048 // storage changed to sortedset when elements below this
 )
 
+const (
+	SORTEDSET = iota
+	RBTREE
+)
+
 // a ranking set
 type RankSet struct {
-	R dos.Tree        // rbtree
-	S ss.SortedSet    // sorted-set
-	M map[int32]int32 // ID  => SCORE
+	R    dos.Tree        // rbtree
+	S    ss.SortedSet    // sorted-set
+	M    map[int32]int32 // ID  => SCORE
+	Type int
 	sync.RWMutex
 }
 
 func NewRankSet() *RankSet {
 	r := new(RankSet)
 	r.M = make(map[int32]int32)
+	r.Type = SORTEDSET // default in sortedset
 	return r
 }
 
-// convert to tree
-func (r *RankSet) to_tree() {
-	for k, v := range r.M {
-		r.R.Insert(v, k)
+// toggle storage base on Type
+func (r *RankSet) toggle() {
+	switch r.Type {
+	case SORTEDSET:
+		for k, v := range r.M {
+			r.R.Insert(v, k)
+		}
+		r.S.Clear()
+		r.Type = RBTREE
+		log.Tracef("convert sortedset to rbtree %v", len(r.M))
+	case RBTREE:
+		for k, v := range r.M {
+			r.S.Insert(v, k)
+		}
+		r.R.Clear()
+		r.Type = SORTEDSET
+		log.Tracef("convert rbtree to sortedset %v", len(r.M))
 	}
-	log.Tracef("convert sortedset to rbtree %v", len(r.M))
 }
 
 func (r *RankSet) Update(id, newscore int32) {
@@ -43,37 +62,45 @@ func (r *RankSet) Update(id, newscore int32) {
 	defer r.Unlock()
 
 	oldscore, ok := r.M[id]
-	if !ok { // new
-		if len(r.M) > UPPER_THRESHOLD {
-			r.to_tree()
-			r.R.Insert(newscore, id)
-		} else {
-			r.S.Insert(id, newscore)
+	if !ok { // new element
+		if r.Type == SORTEDSET && len(r.M) > UPPER_THRESHOLD { // do convert
+			r.toggle()
 		}
-		r.M[id] = newscore
-		return
+
+		switch r.Type {
+		case SORTEDSET:
+			r.S.Insert(id, newscore)
+		case RBTREE:
+			r.R.Insert(id, newscore)
+		}
 	} else {
-		if len(r.M) > UPPER_THRESHOLD {
+		switch r.Type {
+		case SORTEDSET:
+			r.S.Update(id, newscore)
+		case RBTREE:
 			_, n := r.R.Locate(oldscore, id)
 			r.R.Delete(id, n)
 			r.R.Insert(newscore, id)
-		} else {
-			r.S.Update(id, newscore)
 		}
-		r.M[id] = newscore
-		return
 	}
+	r.M[id] = newscore
+	return
 }
 
 func (r *RankSet) Delete(userid int32) {
 	r.Lock()
 	defer r.Unlock()
-	if len(r.M) > UPPER_THRESHOLD {
+	if r.Type == RBTREE && len(r.M) < LOWER_THRESHOLD { // do convert
+		r.toggle()
+	}
+
+	switch r.Type {
+	case SORTEDSET:
+		r.S.Delete(userid)
+	case RBTREE:
 		score := r.M[userid]
 		_, n := r.R.Locate(score, userid)
 		r.R.Delete(userid, n)
-	} else {
-		r.S.Delete(userid)
 	}
 }
 
@@ -99,17 +126,17 @@ func (r *RankSet) GetList(A, B int) (ids []int32, scores []int32) {
 		B = len(r.M)
 	}
 
-	if len(r.M) > UPPER_THRESHOLD {
+	switch r.Type {
+	case SORTEDSET:
+		ids, scores = r.S.GetList(A, B)
+	case RBTREE:
 		ids, scores = make([]int32, B-A+1), make([]int32, B-A+1)
 		for i := A; i <= B; i++ {
 			id, n := r.R.Rank(i)
 			ids[i-A] = id
 			scores[i-A] = n.Score()
 		}
-	} else {
-		return r.S.GetList(A, B)
 	}
-
 	return
 }
 
@@ -118,13 +145,15 @@ func (r *RankSet) Rank(userid int32) (rank int32, score int32) {
 	r.RLock()
 	defer r.RUnlock()
 
-	if len(r.M) > UPPER_THRESHOLD {
-		rankno, _ := r.R.Locate(r.M[userid], userid)
-		return int32(rankno), r.M[userid]
-	} else {
+	switch r.Type {
+	case SORTEDSET:
 		rankno := r.S.Locate(userid)
 		return int32(rankno), r.M[userid]
+	case RBTREE:
+		rankno, _ := r.R.Locate(r.M[userid], userid)
+		return int32(rankno), r.M[userid]
 	}
+	return -1, -1
 }
 
 // serialization
@@ -148,11 +177,13 @@ func (r *RankSet) Unmarshal(bin []byte) error {
 		for id, score := range m {
 			r.R.Insert(score, id)
 		}
+		r.Type = RBTREE
 		log.Tracef("rank restored into rbtree %v", len(r.M))
 	} else {
 		for id, score := range m {
 			r.S.Insert(id, score)
 		}
+		r.Type = SORTEDSET
 		log.Tracef("rank restored into sortedset %v", len(r.M))
 	}
 
