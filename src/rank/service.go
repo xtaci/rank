@@ -2,7 +2,7 @@ package main
 
 import (
 	"errors"
-	log "github.com/GameGophers/nsq-logger"
+	log "github.com/GameGophers/libs/nsq-logger"
 	"github.com/boltdb/bolt"
 	"golang.org/x/net/context"
 	"os"
