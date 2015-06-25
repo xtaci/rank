@@ -34,32 +34,6 @@ func (m *Ranking) Reset()         { *m = Ranking{} }
 func (m *Ranking) String() string { return proto1.CompactTextString(m) }
 func (*Ranking) ProtoMessage()    {}
 
-type Ranking_SetName struct {
-	Name string `protobuf:"bytes,1,opt,name=name" json:"name,omitempty"`
-}
-
-func (m *Ranking_SetName) Reset()         { *m = Ranking_SetName{} }
-func (m *Ranking_SetName) String() string { return proto1.CompactTextString(m) }
-func (*Ranking_SetName) ProtoMessage()    {}
-
-type Ranking_UserId struct {
-	UserId int32 `protobuf:"varint,1,opt,name=user_id" json:"user_id,omitempty"`
-}
-
-func (m *Ranking_UserId) Reset()         { *m = Ranking_UserId{} }
-func (m *Ranking_UserId) String() string { return proto1.CompactTextString(m) }
-func (*Ranking_UserId) ProtoMessage()    {}
-
-type Ranking_Change struct {
-	UserId int32  `protobuf:"varint,1,opt,name=user_id" json:"user_id,omitempty"`
-	Score  int32  `protobuf:"varint,2,opt,name=score" json:"score,omitempty"`
-	Name   string `protobuf:"bytes,3,opt,name=name" json:"name,omitempty"`
-}
-
-func (m *Ranking_Change) Reset()         { *m = Ranking_Change{} }
-func (m *Ranking_Change) String() string { return proto1.CompactTextString(m) }
-func (*Ranking_Change) ProtoMessage()    {}
-
 type Ranking_NullResult struct {
 }
 
@@ -67,10 +41,37 @@ func (m *Ranking_NullResult) Reset()         { *m = Ranking_NullResult{} }
 func (m *Ranking_NullResult) String() string { return proto1.CompactTextString(m) }
 func (*Ranking_NullResult) ProtoMessage()    {}
 
+type Ranking_SetName struct {
+	Name string `protobuf:"bytes,1,opt" json:"Name,omitempty"`
+}
+
+func (m *Ranking_SetName) Reset()         { *m = Ranking_SetName{} }
+func (m *Ranking_SetName) String() string { return proto1.CompactTextString(m) }
+func (*Ranking_SetName) ProtoMessage()    {}
+
+type Ranking_UserId struct {
+	Name   string `protobuf:"bytes,1,opt" json:"Name,omitempty"`
+	UserId int32  `protobuf:"varint,2,opt" json:"UserId,omitempty"`
+}
+
+func (m *Ranking_UserId) Reset()         { *m = Ranking_UserId{} }
+func (m *Ranking_UserId) String() string { return proto1.CompactTextString(m) }
+func (*Ranking_UserId) ProtoMessage()    {}
+
+type Ranking_Change struct {
+	UserId int32  `protobuf:"varint,1,opt" json:"UserId,omitempty"`
+	Score  int32  `protobuf:"varint,2,opt" json:"Score,omitempty"`
+	Name   string `protobuf:"bytes,3,opt" json:"Name,omitempty"`
+}
+
+func (m *Ranking_Change) Reset()         { *m = Ranking_Change{} }
+func (m *Ranking_Change) String() string { return proto1.CompactTextString(m) }
+func (*Ranking_Change) ProtoMessage()    {}
+
 type Ranking_Range struct {
-	StartNo int32  `protobuf:"varint,1,opt,name=start_no" json:"start_no,omitempty"`
-	EndNo   int32  `protobuf:"varint,2,opt,name=end_no" json:"end_no,omitempty"`
-	Name    string `protobuf:"bytes,3,opt,name=name" json:"name,omitempty"`
+	A    int32  `protobuf:"varint,1,opt" json:"A,omitempty"`
+	B    int32  `protobuf:"varint,2,opt" json:"B,omitempty"`
+	Name string `protobuf:"bytes,3,opt" json:"Name,omitempty"`
 }
 
 func (m *Ranking_Range) Reset()         { *m = Ranking_Range{} }
@@ -78,8 +79,8 @@ func (m *Ranking_Range) String() string { return proto1.CompactTextString(m) }
 func (*Ranking_Range) ProtoMessage()    {}
 
 type Ranking_RankList struct {
-	UserIds []int32 `protobuf:"varint,1,rep,packed,name=user_ids" json:"user_ids,omitempty"`
-	Scores  []int32 `protobuf:"varint,2,rep,packed,name=scores" json:"scores,omitempty"`
+	UserIds []int32 `protobuf:"varint,1,rep,packed" json:"UserIds,omitempty"`
+	Scores  []int32 `protobuf:"varint,2,rep,packed" json:"Scores,omitempty"`
 }
 
 func (m *Ranking_RankList) Reset()         { *m = Ranking_RankList{} }
@@ -87,8 +88,8 @@ func (m *Ranking_RankList) String() string { return proto1.CompactTextString(m) 
 func (*Ranking_RankList) ProtoMessage()    {}
 
 type Ranking_Users struct {
-	UserIds []int32 `protobuf:"varint,1,rep,packed,name=user_ids" json:"user_ids,omitempty"`
-	Name    string  `protobuf:"bytes,2,opt,name=name" json:"name,omitempty"`
+	UserIds []int32 `protobuf:"varint,1,rep,packed" json:"UserIds,omitempty"`
+	Name    string  `protobuf:"bytes,2,opt" json:"Name,omitempty"`
 }
 
 func (m *Ranking_Users) Reset()         { *m = Ranking_Users{} }
@@ -96,8 +97,8 @@ func (m *Ranking_Users) String() string { return proto1.CompactTextString(m) }
 func (*Ranking_Users) ProtoMessage()    {}
 
 type Ranking_UserList struct {
-	Ranks  []int32 `protobuf:"varint,1,rep,packed,name=ranks" json:"ranks,omitempty"`
-	Scores []int32 `protobuf:"varint,2,rep,packed,name=scores" json:"scores,omitempty"`
+	Ranks  []int32 `protobuf:"varint,1,rep,packed" json:"Ranks,omitempty"`
+	Scores []int32 `protobuf:"varint,2,rep,packed" json:"Scores,omitempty"`
 }
 
 func (m *Ranking_UserList) Reset()         { *m = Ranking_UserList{} }

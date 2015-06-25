@@ -18,9 +18,9 @@ const (
 
 // a ranking set
 type RankSet struct {
-	R dos.Tree        // 排名
+	R dos.Tree        // rbtree
 	S ss.SortedSet    // sorted-set
-	M map[int32]int32 // 映射 ID  => SCORE
+	M map[int32]int32 // ID  => SCORE
 	sync.RWMutex
 }
 
@@ -37,7 +37,6 @@ func (r *RankSet) to_tree() {
 }
 
 func (r *RankSet) Update(id, newscore int32) {
-	// 集合排名锁
 	r.Lock()
 	defer r.Unlock()
 
@@ -64,6 +63,18 @@ func (r *RankSet) Update(id, newscore int32) {
 	}
 }
 
+func (r *RankSet) Delete(userid int32) {
+	r.Lock()
+	defer r.Unlock()
+	if len(r.M) > UPPER_THRESHOLD {
+		score := r.M[userid]
+		_, n := r.R.Locate(score, userid)
+		r.R.Delete(userid, n)
+	} else {
+		r.S.Delete(userid)
+	}
+}
+
 func (r *RankSet) Count() int32 {
 	r.RLock()
 	defer r.RUnlock()
@@ -75,8 +86,6 @@ func (r *RankSet) GetList(A, B int) (ids []int32, scores []int32) {
 	if A < 1 || A > B {
 		return
 	}
-
-	// 集合排名锁
 	r.RLock()
 	defer r.RUnlock()
 
@@ -104,7 +113,6 @@ func (r *RankSet) GetList(A, B int) (ids []int32, scores []int32) {
 
 // rank of a user
 func (r *RankSet) Rank(userid int32) (rank int32, score int32) {
-	// 集合排名锁
 	r.RLock()
 	defer r.RUnlock()
 
@@ -133,7 +141,6 @@ func (r *RankSet) Unmarshal(bin []byte) error {
 		return err
 	}
 
-	// 还原
 	r.M = m
 	if len(r.M) > UPPER_THRESHOLD {
 		for id, score := range m {

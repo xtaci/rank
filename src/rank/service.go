@@ -28,6 +28,7 @@ const (
 )
 
 var (
+	OK                    = &Ranking_NullResult{}
 	ERROR_NAME_NOT_EXISTS = errors.New("name not exists")
 )
 
@@ -56,51 +57,51 @@ func (s *server) lock_write(f func()) {
 	f()
 }
 
-func (s *server) RankChange(ctx context.Context, in *Ranking_Change) (*Ranking_NullResult, error) {
+func (s *server) RankChange(ctx context.Context, p *Ranking_Change) (*Ranking_NullResult, error) {
 	// check name existence
 	var rs *RankSet
 	s.lock_write(func() {
-		rs = s.ranks[in.Name]
+		rs = s.ranks[p.Name]
 		if rs == nil {
 			rs = &RankSet{}
 			rs.init()
-			s.ranks[in.Name] = rs
+			s.ranks[p.Name] = rs
 		}
 	})
 
 	// apply update one the rankset
-	rs.Update(in.UserId, in.Score)
-	s.pending <- in.Name
-	return &Ranking_NullResult{}, nil
+	rs.Update(p.UserId, p.Score)
+	s.pending <- p.Name
+	return OK, nil
 }
 
-func (s *server) QueryRankRange(ctx context.Context, in *Ranking_Range) (*Ranking_RankList, error) {
+func (s *server) QueryRankRange(ctx context.Context, p *Ranking_Range) (*Ranking_RankList, error) {
 	var rs *RankSet
 	s.lock_read(func() {
-		rs = s.ranks[in.Name]
+		rs = s.ranks[p.Name]
 	})
 
 	if rs == nil {
 		return nil, ERROR_NAME_NOT_EXISTS
 	}
 
-	ids, cups := rs.GetList(int(in.StartNo), int(in.EndNo))
+	ids, cups := rs.GetList(int(p.A), int(p.B))
 	return &Ranking_RankList{UserIds: ids, Scores: cups}, nil
 }
 
-func (s *server) QueryUsers(ctx context.Context, in *Ranking_Users) (*Ranking_UserList, error) {
+func (s *server) QueryUsers(ctx context.Context, p *Ranking_Users) (*Ranking_UserList, error) {
 	var rs *RankSet
 	s.lock_read(func() {
-		rs = s.ranks[in.Name]
+		rs = s.ranks[p.Name]
 	})
 
 	if rs == nil {
 		return nil, ERROR_NAME_NOT_EXISTS
 	}
 
-	ranks := make([]int32, 0, len(in.UserIds))
-	scores := make([]int32, 0, len(in.UserIds))
-	for _, id := range in.UserIds {
+	ranks := make([]int32, 0, len(p.UserIds))
+	scores := make([]int32, 0, len(p.UserIds))
+	for _, id := range p.UserIds {
 		rank, score := rs.Rank(id)
 		ranks = append(ranks, rank)
 		scores = append(scores, score)
@@ -108,12 +109,23 @@ func (s *server) QueryUsers(ctx context.Context, in *Ranking_Users) (*Ranking_Us
 	return &Ranking_UserList{Ranks: ranks, Scores: scores}, nil
 }
 
-func (s *server) DeleteSet(context.Context, *Ranking_SetName) (*Ranking_NullResult, error) {
-	return nil, nil
+func (s *server) DeleteSet(ctx context.Context, p *Ranking_SetName) (*Ranking_NullResult, error) {
+	s.lock_write(func() {
+		delete(s.ranks, p.Name)
+	})
+	return OK, nil
 }
 
-func (s *server) DeleteUser(context.Context, *Ranking_UserId) (*Ranking_NullResult, error) {
-	return nil, nil
+func (s *server) DeleteUser(ctx context.Context, p *Ranking_UserId) (*Ranking_NullResult, error) {
+	var rs *RankSet
+	s.lock_read(func() {
+		rs = s.ranks[p.Name]
+	})
+	if rs == nil {
+		return nil, ERROR_NAME_NOT_EXISTS
+	}
+	rs.Delete(p.UserId)
+	return OK, nil
 }
 
 // persistence ranking tree into db
@@ -150,7 +162,7 @@ func (s *server) dump_changes(db *bolt.DB, changes map[string]bool) {
 			rs = s.ranks[k]
 		})
 		if rs == nil {
-			log.Error("empty rankset:", k)
+			log.Warning("empty rankset:", k)
 			continue
 		}
 

@@ -12,39 +12,38 @@ service RankingService {
 }
 
 message Ranking {
+	message NullResult { }
 	message SetName {
-		string name=1;
+		string Name=1;
 	}
 	message UserId {
-		int32 user_id=1;
+		string Name=1;
+		int32 UserId=2;
 	}
 	message Change{
-		int32 user_id=1;
-		int32 score=2;
-		string name=3;
-	}
-
-	message NullResult {
+		int32 UserId=1;
+		int32 Score=2;
+		string Name=3;
 	}
 
 	message Range {
-		int32 start_no=1;
-		int32 end_no=2;
-		string name=3;
+		int32 A=1;
+		int32 B=2;
+		string Name=3;
 	}
 
 	message RankList {
-		repeated int32 user_ids=1 [packed=true];
-		repeated int32 scores=2 [packed=true];
+		repeated int32 UserIds=1 [packed=true];
+		repeated int32 Scores=2 [packed=true];
 	}
 
 	message Users{
-		repeated int32 user_ids=1 [packed=true];
-		string name=2;
+		repeated int32 UserIds=1 [packed=true];
+		string Name=2;
 	}
 
 	message UserList {
-		repeated int32 ranks=1 [packed=true];
-		repeated int32 scores=2 [packed=true];
+		repeated int32 Ranks=1 [packed=true];
+		repeated int32 Scores=2 [packed=true];
 	}
 }
