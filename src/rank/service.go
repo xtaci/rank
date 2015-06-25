@@ -111,7 +111,7 @@ func (s *server) persistence_task() {
 	db := s.open_db()
 	changes := make(map[string]bool)
 	sig := make(chan os.Signal, 1)
-	signal.Notify(sig, syscall.SIGTERM)
+	signal.Notify(sig, syscall.SIGTERM, syscall.SIGINT)
 
 	for {
 		select {
@@ -125,6 +125,7 @@ func (s *server) persistence_task() {
 		case <-sig:
 			s.dump_changes(db, changes)
 			db.Close()
+			log.Info("SIGTERM")
 			os.Exit(0)
 		}
 	}
