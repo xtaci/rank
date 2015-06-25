@@ -4,12 +4,20 @@ package proto;
 
 // rank service definition
 service RankingService {
-	rpc RankChange(Ranking.Change) returns (Ranking.NullResult);	// 排名变动
+	rpc RankChange(Ranking.Change) returns (Ranking.NullResult); // 排名变动
+	rpc DeleteSet(Ranking.SetName) returns (Ranking.NullResult);	// 删除排名集合
+	rpc DeleteUser(Ranking.UserId) returns (Ranking.NullResult); // 删除某个玩家排名
 	rpc QueryRankRange(Ranking.Range) returns (Ranking.RankList); // 范围查询
-	rpc QueryUsers(Ranking.Users) returns (Ranking.UserList);  // 查询某些ID的排名
+	rpc QueryUsers(Ranking.Users) returns (Ranking.UserList); // 查询某些ID的排名
 }
 
-message Ranking { 
+message Ranking {
+	message SetName {
+		string name=1;
+	}
+	message UserId {
+		int32 user_id=1;
+	}
 	message Change{
 		int32 user_id=1;
 		int32 score=2;

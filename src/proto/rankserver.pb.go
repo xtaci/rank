@@ -34,6 +34,22 @@ func (m *Ranking) Reset()         { *m = Ranking{} }
 func (m *Ranking) String() string { return proto1.CompactTextString(m) }
 func (*Ranking) ProtoMessage()    {}
 
+type Ranking_SetName struct {
+	Name string `protobuf:"bytes,1,opt,name=name" json:"name,omitempty"`
+}
+
+func (m *Ranking_SetName) Reset()         { *m = Ranking_SetName{} }
+func (m *Ranking_SetName) String() string { return proto1.CompactTextString(m) }
+func (*Ranking_SetName) ProtoMessage()    {}
+
+type Ranking_UserId struct {
+	UserId int32 `protobuf:"varint,1,opt,name=user_id" json:"user_id,omitempty"`
+}
+
+func (m *Ranking_UserId) Reset()         { *m = Ranking_UserId{} }
+func (m *Ranking_UserId) String() string { return proto1.CompactTextString(m) }
+func (*Ranking_UserId) ProtoMessage()    {}
+
 type Ranking_Change struct {
 	UserId int32  `protobuf:"varint,1,opt,name=user_id" json:"user_id,omitempty"`
 	Score  int32  `protobuf:"varint,2,opt,name=score" json:"score,omitempty"`
@@ -95,6 +111,8 @@ func init() {
 
 type RankingServiceClient interface {
 	RankChange(ctx context.Context, in *Ranking_Change, opts ...grpc.CallOption) (*Ranking_NullResult, error)
+	DeleteSet(ctx context.Context, in *Ranking_SetName, opts ...grpc.CallOption) (*Ranking_NullResult, error)
+	DeleteUser(ctx context.Context, in *Ranking_UserId, opts ...grpc.CallOption) (*Ranking_NullResult, error)
 	QueryRankRange(ctx context.Context, in *Ranking_Range, opts ...grpc.CallOption) (*Ranking_RankList, error)
 	QueryUsers(ctx context.Context, in *Ranking_Users, opts ...grpc.CallOption) (*Ranking_UserList, error)
 }
@@ -110,6 +128,24 @@ func NewRankingServiceClient(cc *grpc.ClientConn) RankingServiceClient {
 func (c *rankingServiceClient) RankChange(ctx context.Context, in *Ranking_Change, opts ...grpc.CallOption) (*Ranking_NullResult, error) {
 	out := new(Ranking_NullResult)
 	err := grpc.Invoke(ctx, "/proto.RankingService/RankChange", in, out, c.cc, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *rankingServiceClient) DeleteSet(ctx context.Context, in *Ranking_SetName, opts ...grpc.CallOption) (*Ranking_NullResult, error) {
+	out := new(Ranking_NullResult)
+	err := grpc.Invoke(ctx, "/proto.RankingService/DeleteSet", in, out, c.cc, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *rankingServiceClient) DeleteUser(ctx context.Context, in *Ranking_UserId, opts ...grpc.CallOption) (*Ranking_NullResult, error) {
+	out := new(Ranking_NullResult)
+	err := grpc.Invoke(ctx, "/proto.RankingService/DeleteUser", in, out, c.cc, opts...)
 	if err != nil {
 		return nil, err
 	}
@@ -138,6 +174,8 @@ func (c *rankingServiceClient) QueryUsers(ctx context.Context, in *Ranking_Users
 
 type RankingServiceServer interface {
 	RankChange(context.Context, *Ranking_Change) (*Ranking_NullResult, error)
+	DeleteSet(context.Context, *Ranking_SetName) (*Ranking_NullResult, error)
+	DeleteUser(context.Context, *Ranking_UserId) (*Ranking_NullResult, error)
 	QueryRankRange(context.Context, *Ranking_Range) (*Ranking_RankList, error)
 	QueryUsers(context.Context, *Ranking_Users) (*Ranking_UserList, error)
 }
@@ -152,6 +190,30 @@ func _RankingService_RankChange_Handler(srv interface{}, ctx context.Context, co
 		return nil, err
 	}
 	out, err := srv.(RankingServiceServer).RankChange(ctx, in)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func _RankingService_DeleteSet_Handler(srv interface{}, ctx context.Context, codec grpc.Codec, buf []byte) (interface{}, error) {
+	in := new(Ranking_SetName)
+	if err := codec.Unmarshal(buf, in); err != nil {
+		return nil, err
+	}
+	out, err := srv.(RankingServiceServer).DeleteSet(ctx, in)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func _RankingService_DeleteUser_Handler(srv interface{}, ctx context.Context, codec grpc.Codec, buf []byte) (interface{}, error) {
+	in := new(Ranking_UserId)
+	if err := codec.Unmarshal(buf, in); err != nil {
+		return nil, err
+	}
+	out, err := srv.(RankingServiceServer).DeleteUser(ctx, in)
 	if err != nil {
 		return nil, err
 	}
@@ -189,6 +251,14 @@ var _RankingService_serviceDesc = grpc.ServiceDesc{
 		{
 			MethodName: "RankChange",
 			Handler:    _RankingService_RankChange_Handler,
+		},
+		{
+			MethodName: "DeleteSet",
+			Handler:    _RankingService_DeleteSet_Handler,
+		},
+		{
+			MethodName: "DeleteUser",
+			Handler:    _RankingService_DeleteUser_Handler,
 		},
 		{
 			MethodName: "QueryRankRange",

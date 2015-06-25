@@ -7,10 +7,13 @@ import (
 	"golang.org/x/net/context"
 	"os"
 	"os/signal"
-	pb "proto"
 	"sync"
 	"syscall"
 	"time"
+)
+
+import (
+	. "proto"
 )
 
 const (
@@ -53,7 +56,7 @@ func (s *server) lock_write(f func()) {
 	f()
 }
 
-func (s *server) RankChange(ctx context.Context, in *pb.Ranking_Change) (*pb.Ranking_NullResult, error) {
+func (s *server) RankChange(ctx context.Context, in *Ranking_Change) (*Ranking_NullResult, error) {
 	// check name existence
 	var rs *RankSet
 	s.lock_write(func() {
@@ -68,10 +71,10 @@ func (s *server) RankChange(ctx context.Context, in *pb.Ranking_Change) (*pb.Ran
 	// apply update one the rankset
 	rs.Update(in.UserId, in.Score)
 	s.pending <- in.Name
-	return &pb.Ranking_NullResult{}, nil
+	return &Ranking_NullResult{}, nil
 }
 
-func (s *server) QueryRankRange(ctx context.Context, in *pb.Ranking_Range) (*pb.Ranking_RankList, error) {
+func (s *server) QueryRankRange(ctx context.Context, in *Ranking_Range) (*Ranking_RankList, error) {
 	var rs *RankSet
 	s.lock_read(func() {
 		rs = s.ranks[in.Name]
@@ -82,10 +85,10 @@ func (s *server) QueryRankRange(ctx context.Context, in *pb.Ranking_Range) (*pb.
 	}
 
 	ids, cups := rs.GetList(int(in.StartNo), int(in.EndNo))
-	return &pb.Ranking_RankList{UserIds: ids, Scores: cups}, nil
+	return &Ranking_RankList{UserIds: ids, Scores: cups}, nil
 }
 
-func (s *server) QueryUsers(ctx context.Context, in *pb.Ranking_Users) (*pb.Ranking_UserList, error) {
+func (s *server) QueryUsers(ctx context.Context, in *Ranking_Users) (*Ranking_UserList, error) {
 	var rs *RankSet
 	s.lock_read(func() {
 		rs = s.ranks[in.Name]
@@ -102,7 +105,15 @@ func (s *server) QueryUsers(ctx context.Context, in *pb.Ranking_Users) (*pb.Rank
 		ranks = append(ranks, rank)
 		scores = append(scores, score)
 	}
-	return &pb.Ranking_UserList{Ranks: ranks, Scores: scores}, nil
+	return &Ranking_UserList{Ranks: ranks, Scores: scores}, nil
+}
+
+func (s *server) DeleteSet(context.Context, *Ranking_SetName) (*Ranking_NullResult, error) {
+	return nil, nil
+}
+
+func (s *server) DeleteUser(context.Context, *Ranking_UserId) (*Ranking_NullResult, error) {
+	return nil, nil
 }
 
 // persistence ranking tree into db
