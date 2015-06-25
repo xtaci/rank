@@ -119,7 +119,7 @@ func (s *server) persistence_task() {
 			changes[key] = true
 		case <-timer:
 			s.dump_changes(db, changes)
-			log.Infof("perisisted %v trees:", len(changes))
+			log.Infof("perisisted %v rankset:", len(changes))
 			changes = make(map[string]bool)
 			timer = time.After(CHECK_INTERVAL)
 		case <-sig:
