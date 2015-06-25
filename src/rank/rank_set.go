@@ -26,12 +26,8 @@ type RankSet struct {
 
 func NewRankSet() *RankSet {
 	r := new(RankSet)
-	r.init()
-	return r
-}
-
-func (r *RankSet) init() {
 	r.M = make(map[int32]int32)
+	return r
 }
 
 // convert to tree
