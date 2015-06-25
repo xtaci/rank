@@ -24,7 +24,7 @@ const (
 	BOLTDB_FILE    = "/data/RANK-DUMP.DAT"
 	BOLTDB_BUCKET  = "RANKING"
 	CHANGES_SIZE   = 65536
-	CHECK_INTERVAL = 10 * time.Second // if ranking has changed, how long to check
+	CHECK_INTERVAL = time.Minute // if ranking has changed, how long to check
 )
 
 var (

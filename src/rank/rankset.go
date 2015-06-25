@@ -102,6 +102,7 @@ func (r *RankSet) Delete(userid int32) {
 		_, n := r.R.Locate(score, userid)
 		r.R.Delete(userid, n)
 	}
+	delete(r.M, userid)
 }
 
 func (r *RankSet) Count() int32 {
