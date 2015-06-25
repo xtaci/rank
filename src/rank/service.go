@@ -28,7 +28,7 @@ const (
 )
 
 var (
-	OK                    = &Ranking_NullResult{}
+	OK                    = &Ranking_Nil{}
 	ERROR_NAME_NOT_EXISTS = errors.New("name not exists")
 )
 
@@ -57,7 +57,7 @@ func (s *server) lock_write(f func()) {
 	f()
 }
 
-func (s *server) RankChange(ctx context.Context, p *Ranking_Change) (*Ranking_NullResult, error) {
+func (s *server) RankChange(ctx context.Context, p *Ranking_Change) (*Ranking_Nil, error) {
 	// check name existence
 	var rs *RankSet
 	s.lock_write(func() {
@@ -108,14 +108,14 @@ func (s *server) QueryUsers(ctx context.Context, p *Ranking_Users) (*Ranking_Use
 	return &Ranking_UserList{Ranks: ranks, Scores: scores}, nil
 }
 
-func (s *server) DeleteSet(ctx context.Context, p *Ranking_SetName) (*Ranking_NullResult, error) {
+func (s *server) DeleteSet(ctx context.Context, p *Ranking_SetName) (*Ranking_Nil, error) {
 	s.lock_write(func() {
 		delete(s.ranks, p.Name)
 	})
 	return OK, nil
 }
 
-func (s *server) DeleteUser(ctx context.Context, p *Ranking_UserId) (*Ranking_NullResult, error) {
+func (s *server) DeleteUser(ctx context.Context, p *Ranking_UserId) (*Ranking_Nil, error) {
 	var rs *RankSet
 	s.lock_read(func() {
 		rs = s.ranks[p.Name]

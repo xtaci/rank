@@ -34,12 +34,12 @@ func (m *Ranking) Reset()         { *m = Ranking{} }
 func (m *Ranking) String() string { return proto1.CompactTextString(m) }
 func (*Ranking) ProtoMessage()    {}
 
-type Ranking_NullResult struct {
+type Ranking_Nil struct {
 }
 
-func (m *Ranking_NullResult) Reset()         { *m = Ranking_NullResult{} }
-func (m *Ranking_NullResult) String() string { return proto1.CompactTextString(m) }
-func (*Ranking_NullResult) ProtoMessage()    {}
+func (m *Ranking_Nil) Reset()         { *m = Ranking_Nil{} }
+func (m *Ranking_Nil) String() string { return proto1.CompactTextString(m) }
+func (*Ranking_Nil) ProtoMessage()    {}
 
 type Ranking_SetName struct {
 	Name string `protobuf:"bytes,1,opt" json:"Name,omitempty"`
@@ -111,9 +111,9 @@ func init() {
 // Client API for RankingService service
 
 type RankingServiceClient interface {
-	RankChange(ctx context.Context, in *Ranking_Change, opts ...grpc.CallOption) (*Ranking_NullResult, error)
-	DeleteSet(ctx context.Context, in *Ranking_SetName, opts ...grpc.CallOption) (*Ranking_NullResult, error)
-	DeleteUser(ctx context.Context, in *Ranking_UserId, opts ...grpc.CallOption) (*Ranking_NullResult, error)
+	RankChange(ctx context.Context, in *Ranking_Change, opts ...grpc.CallOption) (*Ranking_Nil, error)
+	DeleteSet(ctx context.Context, in *Ranking_SetName, opts ...grpc.CallOption) (*Ranking_Nil, error)
+	DeleteUser(ctx context.Context, in *Ranking_UserId, opts ...grpc.CallOption) (*Ranking_Nil, error)
 	QueryRankRange(ctx context.Context, in *Ranking_Range, opts ...grpc.CallOption) (*Ranking_RankList, error)
 	QueryUsers(ctx context.Context, in *Ranking_Users, opts ...grpc.CallOption) (*Ranking_UserList, error)
 }
@@ -126,8 +126,8 @@ func NewRankingServiceClient(cc *grpc.ClientConn) RankingServiceClient {
 	return &rankingServiceClient{cc}
 }
 
-func (c *rankingServiceClient) RankChange(ctx context.Context, in *Ranking_Change, opts ...grpc.CallOption) (*Ranking_NullResult, error) {
-	out := new(Ranking_NullResult)
+func (c *rankingServiceClient) RankChange(ctx context.Context, in *Ranking_Change, opts ...grpc.CallOption) (*Ranking_Nil, error) {
+	out := new(Ranking_Nil)
 	err := grpc.Invoke(ctx, "/proto.RankingService/RankChange", in, out, c.cc, opts...)
 	if err != nil {
 		return nil, err
@@ -135,8 +135,8 @@ func (c *rankingServiceClient) RankChange(ctx context.Context, in *Ranking_Chang
 	return out, nil
 }
 
-func (c *rankingServiceClient) DeleteSet(ctx context.Context, in *Ranking_SetName, opts ...grpc.CallOption) (*Ranking_NullResult, error) {
-	out := new(Ranking_NullResult)
+func (c *rankingServiceClient) DeleteSet(ctx context.Context, in *Ranking_SetName, opts ...grpc.CallOption) (*Ranking_Nil, error) {
+	out := new(Ranking_Nil)
 	err := grpc.Invoke(ctx, "/proto.RankingService/DeleteSet", in, out, c.cc, opts...)
 	if err != nil {
 		return nil, err
@@ -144,8 +144,8 @@ func (c *rankingServiceClient) DeleteSet(ctx context.Context, in *Ranking_SetNam
 	return out, nil
 }
 
-func (c *rankingServiceClient) DeleteUser(ctx context.Context, in *Ranking_UserId, opts ...grpc.CallOption) (*Ranking_NullResult, error) {
-	out := new(Ranking_NullResult)
+func (c *rankingServiceClient) DeleteUser(ctx context.Context, in *Ranking_UserId, opts ...grpc.CallOption) (*Ranking_Nil, error) {
+	out := new(Ranking_Nil)
 	err := grpc.Invoke(ctx, "/proto.RankingService/DeleteUser", in, out, c.cc, opts...)
 	if err != nil {
 		return nil, err
@@ -174,9 +174,9 @@ func (c *rankingServiceClient) QueryUsers(ctx context.Context, in *Ranking_Users
 // Server API for RankingService service
 
 type RankingServiceServer interface {
-	RankChange(context.Context, *Ranking_Change) (*Ranking_NullResult, error)
-	DeleteSet(context.Context, *Ranking_SetName) (*Ranking_NullResult, error)
-	DeleteUser(context.Context, *Ranking_UserId) (*Ranking_NullResult, error)
+	RankChange(context.Context, *Ranking_Change) (*Ranking_Nil, error)
+	DeleteSet(context.Context, *Ranking_SetName) (*Ranking_Nil, error)
+	DeleteUser(context.Context, *Ranking_UserId) (*Ranking_Nil, error)
 	QueryRankRange(context.Context, *Ranking_Range) (*Ranking_RankList, error)
 	QueryUsers(context.Context, *Ranking_Users) (*Ranking_UserList, error)
 }
