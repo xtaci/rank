@@ -63,13 +63,12 @@ func (s *server) RankChange(ctx context.Context, p *Ranking_Change) (*Ranking_Nu
 	s.lock_write(func() {
 		rs = s.ranks[p.Name]
 		if rs == nil {
-			rs = &RankSet{}
-			rs.init()
+			rs = NewRankSet()
 			s.ranks[p.Name] = rs
 		}
 	})
 
-	// apply update one the rankset
+	// apply update on the rankset
 	rs.Update(p.UserId, p.Score)
 	s.pending <- p.Name
 	return OK, nil
@@ -208,8 +207,7 @@ func (s *server) restore() {
 		c := b.Cursor()
 
 		for k, v := c.First(); k != nil; k, v = c.Next() {
-			rs := &RankSet{}
-			rs.init()
+			rs := NewRankSet()
 			err := rs.Unmarshal(v)
 			if err != nil {
 				log.Critical("rank data corrupted:", err)
