@@ -12,8 +12,8 @@ import (
 )
 
 const (
-	UPPER_THRESHOLD = 4096 // storage changed to tree when elements exceeds this
-	LOWER_THRESHOLD = 2048 // storage changed to sortedset when elements below this
+	UPPER_THRESHOLD = 1024 // storage changed to tree when elements exceeds this
+	LOWER_THRESHOLD = 512  // storage changed to sortedset when elements below this
 )
 
 const (
