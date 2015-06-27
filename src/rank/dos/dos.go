@@ -91,6 +91,16 @@ func (t *Tree) Rank(rank int) (id int32, node *Node) {
 	return lookup_node(t.root, rank)
 }
 
+func (t *Tree) GetList(a, b int) (ids []int32, scores []int32) {
+	ids, scores = make([]int32, b-a+1), make([]int32, b-a+1)
+	for i := a; i <= b; i++ {
+		id, n := lookup_node(t.root, i)
+		ids[i-a] = id
+		scores[i-a] = n.score
+	}
+	return
+}
+
 //--------------------------------------------------------- Lookup by score
 func (t *Tree) _lookup_score(score int32) (rank int, n *Node) {
 	n = t.root

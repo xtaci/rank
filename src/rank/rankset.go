@@ -131,12 +131,7 @@ func (r *RankSet) GetList(A, B int) (ids []int32, scores []int32) {
 	case SORTEDSET:
 		ids, scores = r.S.GetList(A, B)
 	case RBTREE:
-		ids, scores = make([]int32, B-A+1), make([]int32, B-A+1)
-		for i := A; i <= B; i++ {
-			id, n := r.R.Rank(i)
-			ids[i-A] = id
-			scores[i-A] = n.Score()
-		}
+		ids, scores = r.R.GetList(A, B)
 	}
 	return
 }

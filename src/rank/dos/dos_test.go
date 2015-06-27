@@ -17,12 +17,14 @@ func Benchmark(b *testing.B) {
 func TestDos(t *testing.T) {
 	tree := Tree{}
 
-	N := 500
+	N := 100
 	t.Log("testing tree.Insert()")
 	for i := 0; i < N; i++ {
 		tree.Insert(int32(i), int32(N-i))
 	}
 	t.Log("Count:", tree.Count())
+
+	t.Log(tree.GetList(1, 100))
 
 	t.Log("testing tree.Locate()")
 	for i := 0; i < N; i++ {
