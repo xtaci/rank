@@ -21,13 +21,13 @@ func (ss *SortedSet) Insert(id, score int32) {
 	}
 
 	for k := range ss.set {
-		if score < ss.set[k].score {
+		if score > ss.set[k].score {
 			ss.set = append(ss.set[:k], append([]sortpair{p}, ss.set[k:]...)...)
 			return
 		}
 	}
 
-	// largest
+	// smallest
 	ss.set = append(ss.set, p)
 }
 
@@ -56,7 +56,7 @@ func (ss *SortedSet) Update(id, score int32) {
 	for k := range ss.set {
 		if old_idx == -1 && ss.set[k].id == id {
 			old_idx = k
-		} else if insert_idx == len(ss.set) && score < ss.set[k].score { // set once
+		} else if insert_idx == len(ss.set) && score > ss.set[k].score { // set once
 			insert_idx = k
 		}
 
