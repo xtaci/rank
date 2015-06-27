@@ -78,9 +78,9 @@ func (ss *SortedSet) Update(id, score int32) {
 
 func (ss *SortedSet) GetList(a, b int) (ids []int32, scores []int32) {
 	ids, scores = make([]int32, b-a+1), make([]int32, b-a+1)
-	for k := a; k <= b; k++ {
-		ids[k-a] = ss.set[k].id
-		scores[k-a] = ss.set[k].score
+	for k := a - 1; k <= b-1; k++ {
+		ids[k-a+1] = ss.set[k].id
+		scores[k-a+1] = ss.set[k].score
 	}
 	return
 }

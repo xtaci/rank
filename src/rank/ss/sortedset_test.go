@@ -12,7 +12,7 @@ func TestSS(t *testing.T) {
 	}
 	t.Log(ss)
 
-	t.Log(ss.GetList(0, 9))
+	t.Log(ss.GetList(1, 10))
 	ss.Update(5, 100)
 	t.Log(ss)
 	ss.Update(0, 200)

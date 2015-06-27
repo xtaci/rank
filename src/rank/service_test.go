@@ -9,6 +9,7 @@ import (
 
 const (
 	address = "localhost:50001"
+	KEY     = "TESTKEY"
 )
 
 func TestRankChange(t *testing.T) {
@@ -20,9 +21,19 @@ func TestRankChange(t *testing.T) {
 	defer conn.Close()
 	c := pb.NewRankingServiceClient(conn)
 
+	COUNT := 5000
 	// Contact the server and print out its response.
-	_, err = c.RankChange(context.Background(), &pb.Ranking_Change{1, 100, "testkey"})
-	if err != nil {
-		t.Fatalf("could not query: %v", err)
+	for i := 1; i < COUNT; i++ {
+		_, err = c.RankChange(context.Background(), &pb.Ranking_Change{int32(i), int32(i), KEY})
+		if err != nil {
+			t.Fatalf("could not query: %v", err)
+		}
+		if i%1000 == 0 {
+			list, err := c.QueryRankRange(context.Background(), &pb.Ranking_Range{1, 100, KEY})
+			if err != nil {
+				t.Fatalf("could not query: %v", err)
+			}
+			t.Log(list)
+		}
 	}
 }
