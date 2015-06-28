@@ -9,7 +9,7 @@ import (
 
 const (
 	address = "localhost:50001"
-	KEY     = "TESTKEY"
+	KEY     = 0
 )
 
 func TestRankChange(t *testing.T) {

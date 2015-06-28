@@ -2,11 +2,13 @@ package main
 
 import (
 	"errors"
+	"fmt"
 	log "github.com/GameGophers/libs/nsq-logger"
 	"github.com/boltdb/bolt"
 	"golang.org/x/net/context"
 	"os"
 	"os/signal"
+	"strconv"
 	"sync"
 	"syscall"
 	"time"
@@ -33,14 +35,14 @@ var (
 )
 
 type server struct {
-	ranks   map[string]*RankSet
-	pending chan string
+	ranks   map[uint64]*RankSet
+	pending chan uint64
 	sync.RWMutex
 }
 
 func (s *server) init() {
-	s.ranks = make(map[string]*RankSet)
-	s.pending = make(chan string, CHANGES_SIZE)
+	s.ranks = make(map[uint64]*RankSet)
+	s.pending = make(chan uint64, CHANGES_SIZE)
 	s.restore()
 	go s.persistence_task()
 }
@@ -61,23 +63,23 @@ func (s *server) RankChange(ctx context.Context, p *Ranking_Change) (*Ranking_Ni
 	// check name existence
 	var rs *RankSet
 	s.lock_write(func() {
-		rs = s.ranks[p.Name]
+		rs = s.ranks[p.SetId]
 		if rs == nil {
 			rs = NewRankSet()
-			s.ranks[p.Name] = rs
+			s.ranks[p.SetId] = rs
 		}
 	})
 
 	// apply update on the rankset
 	rs.Update(p.UserId, p.Score)
-	s.pending <- p.Name
+	s.pending <- p.SetId
 	return OK, nil
 }
 
 func (s *server) QueryRankRange(ctx context.Context, p *Ranking_Range) (*Ranking_RankList, error) {
 	var rs *RankSet
 	s.lock_read(func() {
-		rs = s.ranks[p.Name]
+		rs = s.ranks[p.SetId]
 	})
 
 	if rs == nil {
@@ -91,7 +93,7 @@ func (s *server) QueryRankRange(ctx context.Context, p *Ranking_Range) (*Ranking
 func (s *server) QueryUsers(ctx context.Context, p *Ranking_Users) (*Ranking_UserList, error) {
 	var rs *RankSet
 	s.lock_read(func() {
-		rs = s.ranks[p.Name]
+		rs = s.ranks[p.SetId]
 	})
 
 	if rs == nil {
@@ -108,17 +110,17 @@ func (s *server) QueryUsers(ctx context.Context, p *Ranking_Users) (*Ranking_Use
 	return &Ranking_UserList{Ranks: ranks, Scores: scores}, nil
 }
 
-func (s *server) DeleteSet(ctx context.Context, p *Ranking_SetName) (*Ranking_Nil, error) {
+func (s *server) DeleteSet(ctx context.Context, p *Ranking_SetId) (*Ranking_Nil, error) {
 	s.lock_write(func() {
-		delete(s.ranks, p.Name)
+		delete(s.ranks, p.SetId)
 	})
 	return OK, nil
 }
 
-func (s *server) DeleteUser(ctx context.Context, p *Ranking_UserId) (*Ranking_Nil, error) {
+func (s *server) DeleteUser(ctx context.Context, p *Ranking_DeleteUserRequest) (*Ranking_Nil, error) {
 	var rs *RankSet
 	s.lock_read(func() {
-		rs = s.ranks[p.Name]
+		rs = s.ranks[p.SetId]
 	})
 	if rs == nil {
 		return nil, ERROR_NAME_NOT_EXISTS
@@ -131,7 +133,7 @@ func (s *server) DeleteUser(ctx context.Context, p *Ranking_UserId) (*Ranking_Ni
 func (s *server) persistence_task() {
 	timer := time.After(CHECK_INTERVAL)
 	db := s.open_db()
-	changes := make(map[string]bool)
+	changes := make(map[uint64]bool)
 	sig := make(chan os.Signal, 1)
 	signal.Notify(sig, syscall.SIGTERM, syscall.SIGINT)
 
@@ -140,43 +142,16 @@ func (s *server) persistence_task() {
 		case key := <-s.pending:
 			changes[key] = true
 		case <-timer:
-			s.dump_changes(db, changes)
+			s.dump(db, changes)
 			log.Infof("perisisted %v rankset:", len(changes))
-			changes = make(map[string]bool)
+			changes = make(map[uint64]bool)
 			timer = time.After(CHECK_INTERVAL)
 		case nr := <-sig:
-			s.dump_changes(db, changes)
+			s.dump(db, changes)
 			db.Close()
 			log.Info(nr)
 			os.Exit(0)
 		}
-	}
-}
-
-func (s *server) dump_changes(db *bolt.DB, changes map[string]bool) {
-	for k := range changes {
-		// marshal
-		var rs *RankSet
-		s.lock_read(func() {
-			rs = s.ranks[k]
-		})
-		if rs == nil {
-			log.Warning("empty rankset:", k)
-			continue
-		}
-
-		// serialization and save
-		bin, err := rs.Marshal()
-		if err != nil {
-			log.Critical("cannot marshal:", err)
-			os.Exit(-1)
-		}
-
-		db.Update(func(tx *bolt.Tx) error {
-			b := tx.Bucket([]byte(BOLTDB_BUCKET))
-			err := b.Put([]byte(k), bin)
-			return err
-		})
 	}
 }
 
@@ -198,6 +173,33 @@ func (s *server) open_db() *bolt.DB {
 	return db
 }
 
+func (s *server) dump(db *bolt.DB, changes map[uint64]bool) {
+	for k := range changes {
+		// marshal
+		var rs *RankSet
+		s.lock_read(func() {
+			rs = s.ranks[k]
+		})
+		if rs == nil {
+			log.Warning("empty rankset:", k)
+			continue
+		}
+
+		// serialization and save
+		bin, err := rs.Marshal()
+		if err != nil {
+			log.Critical("cannot marshal:", err)
+			os.Exit(-1)
+		}
+
+		db.Update(func(tx *bolt.Tx) error {
+			b := tx.Bucket([]byte(BOLTDB_BUCKET))
+			err := b.Put([]byte(fmt.Sprint(k)), bin)
+			return err
+		})
+	}
+}
+
 func (s *server) restore() {
 	// restore data from db file
 	db := s.open_db()
@@ -213,7 +215,12 @@ func (s *server) restore() {
 				log.Critical("rank data corrupted:", err)
 				os.Exit(-1)
 			}
-			s.ranks[string(k)] = rs
+			id, err := strconv.ParseUint(string(k), 0, 64)
+			if err != nil {
+				log.Critical("chat data corrupted:", err)
+				os.Exit(-1)
+			}
+			s.ranks[id] = rs
 		}
 
 		return nil

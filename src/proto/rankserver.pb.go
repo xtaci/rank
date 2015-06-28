@@ -41,27 +41,27 @@ func (m *Ranking_Nil) Reset()         { *m = Ranking_Nil{} }
 func (m *Ranking_Nil) String() string { return proto1.CompactTextString(m) }
 func (*Ranking_Nil) ProtoMessage()    {}
 
-type Ranking_SetName struct {
-	Name string `protobuf:"bytes,1,opt" json:"Name,omitempty"`
+type Ranking_SetId struct {
+	SetId uint64 `protobuf:"varint,1,opt" json:"SetId,omitempty"`
 }
 
-func (m *Ranking_SetName) Reset()         { *m = Ranking_SetName{} }
-func (m *Ranking_SetName) String() string { return proto1.CompactTextString(m) }
-func (*Ranking_SetName) ProtoMessage()    {}
+func (m *Ranking_SetId) Reset()         { *m = Ranking_SetId{} }
+func (m *Ranking_SetId) String() string { return proto1.CompactTextString(m) }
+func (*Ranking_SetId) ProtoMessage()    {}
 
-type Ranking_UserId struct {
-	Name   string `protobuf:"bytes,1,opt" json:"Name,omitempty"`
+type Ranking_DeleteUserRequest struct {
+	SetId  uint64 `protobuf:"varint,1,opt" json:"SetId,omitempty"`
 	UserId int32  `protobuf:"varint,2,opt" json:"UserId,omitempty"`
 }
 
-func (m *Ranking_UserId) Reset()         { *m = Ranking_UserId{} }
-func (m *Ranking_UserId) String() string { return proto1.CompactTextString(m) }
-func (*Ranking_UserId) ProtoMessage()    {}
+func (m *Ranking_DeleteUserRequest) Reset()         { *m = Ranking_DeleteUserRequest{} }
+func (m *Ranking_DeleteUserRequest) String() string { return proto1.CompactTextString(m) }
+func (*Ranking_DeleteUserRequest) ProtoMessage()    {}
 
 type Ranking_Change struct {
 	UserId int32  `protobuf:"varint,1,opt" json:"UserId,omitempty"`
 	Score  int32  `protobuf:"varint,2,opt" json:"Score,omitempty"`
-	Name   string `protobuf:"bytes,3,opt" json:"Name,omitempty"`
+	SetId  uint64 `protobuf:"varint,3,opt" json:"SetId,omitempty"`
 }
 
 func (m *Ranking_Change) Reset()         { *m = Ranking_Change{} }
@@ -69,9 +69,9 @@ func (m *Ranking_Change) String() string { return proto1.CompactTextString(m) }
 func (*Ranking_Change) ProtoMessage()    {}
 
 type Ranking_Range struct {
-	A    int32  `protobuf:"varint,1,opt" json:"A,omitempty"`
-	B    int32  `protobuf:"varint,2,opt" json:"B,omitempty"`
-	Name string `protobuf:"bytes,3,opt" json:"Name,omitempty"`
+	A     int32  `protobuf:"varint,1,opt" json:"A,omitempty"`
+	B     int32  `protobuf:"varint,2,opt" json:"B,omitempty"`
+	SetId uint64 `protobuf:"varint,3,opt" json:"SetId,omitempty"`
 }
 
 func (m *Ranking_Range) Reset()         { *m = Ranking_Range{} }
@@ -89,7 +89,7 @@ func (*Ranking_RankList) ProtoMessage()    {}
 
 type Ranking_Users struct {
 	UserIds []int32 `protobuf:"varint,1,rep,packed" json:"UserIds,omitempty"`
-	Name    string  `protobuf:"bytes,2,opt" json:"Name,omitempty"`
+	SetId   uint64  `protobuf:"varint,2,opt" json:"SetId,omitempty"`
 }
 
 func (m *Ranking_Users) Reset()         { *m = Ranking_Users{} }
@@ -112,8 +112,8 @@ func init() {
 
 type RankingServiceClient interface {
 	RankChange(ctx context.Context, in *Ranking_Change, opts ...grpc.CallOption) (*Ranking_Nil, error)
-	DeleteSet(ctx context.Context, in *Ranking_SetName, opts ...grpc.CallOption) (*Ranking_Nil, error)
-	DeleteUser(ctx context.Context, in *Ranking_UserId, opts ...grpc.CallOption) (*Ranking_Nil, error)
+	DeleteSet(ctx context.Context, in *Ranking_SetId, opts ...grpc.CallOption) (*Ranking_Nil, error)
+	DeleteUser(ctx context.Context, in *Ranking_DeleteUserRequest, opts ...grpc.CallOption) (*Ranking_Nil, error)
 	QueryRankRange(ctx context.Context, in *Ranking_Range, opts ...grpc.CallOption) (*Ranking_RankList, error)
 	QueryUsers(ctx context.Context, in *Ranking_Users, opts ...grpc.CallOption) (*Ranking_UserList, error)
 }
@@ -135,7 +135,7 @@ func (c *rankingServiceClient) RankChange(ctx context.Context, in *Ranking_Chang
 	return out, nil
 }
 
-func (c *rankingServiceClient) DeleteSet(ctx context.Context, in *Ranking_SetName, opts ...grpc.CallOption) (*Ranking_Nil, error) {
+func (c *rankingServiceClient) DeleteSet(ctx context.Context, in *Ranking_SetId, opts ...grpc.CallOption) (*Ranking_Nil, error) {
 	out := new(Ranking_Nil)
 	err := grpc.Invoke(ctx, "/proto.RankingService/DeleteSet", in, out, c.cc, opts...)
 	if err != nil {
@@ -144,7 +144,7 @@ func (c *rankingServiceClient) DeleteSet(ctx context.Context, in *Ranking_SetNam
 	return out, nil
 }
 
-func (c *rankingServiceClient) DeleteUser(ctx context.Context, in *Ranking_UserId, opts ...grpc.CallOption) (*Ranking_Nil, error) {
+func (c *rankingServiceClient) DeleteUser(ctx context.Context, in *Ranking_DeleteUserRequest, opts ...grpc.CallOption) (*Ranking_Nil, error) {
 	out := new(Ranking_Nil)
 	err := grpc.Invoke(ctx, "/proto.RankingService/DeleteUser", in, out, c.cc, opts...)
 	if err != nil {
@@ -175,8 +175,8 @@ func (c *rankingServiceClient) QueryUsers(ctx context.Context, in *Ranking_Users
 
 type RankingServiceServer interface {
 	RankChange(context.Context, *Ranking_Change) (*Ranking_Nil, error)
-	DeleteSet(context.Context, *Ranking_SetName) (*Ranking_Nil, error)
-	DeleteUser(context.Context, *Ranking_UserId) (*Ranking_Nil, error)
+	DeleteSet(context.Context, *Ranking_SetId) (*Ranking_Nil, error)
+	DeleteUser(context.Context, *Ranking_DeleteUserRequest) (*Ranking_Nil, error)
 	QueryRankRange(context.Context, *Ranking_Range) (*Ranking_RankList, error)
 	QueryUsers(context.Context, *Ranking_Users) (*Ranking_UserList, error)
 }
@@ -198,7 +198,7 @@ func _RankingService_RankChange_Handler(srv interface{}, ctx context.Context, co
 }
 
 func _RankingService_DeleteSet_Handler(srv interface{}, ctx context.Context, codec grpc.Codec, buf []byte) (interface{}, error) {
-	in := new(Ranking_SetName)
+	in := new(Ranking_SetId)
 	if err := codec.Unmarshal(buf, in); err != nil {
 		return nil, err
 	}
@@ -210,7 +210,7 @@ func _RankingService_DeleteSet_Handler(srv interface{}, ctx context.Context, cod
 }
 
 func _RankingService_DeleteUser_Handler(srv interface{}, ctx context.Context, codec grpc.Codec, buf []byte) (interface{}, error) {
-	in := new(Ranking_UserId)
+	in := new(Ranking_DeleteUserRequest)
 	if err := codec.Unmarshal(buf, in); err != nil {
 		return nil, err
 	}
