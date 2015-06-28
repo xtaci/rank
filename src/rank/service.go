@@ -206,9 +206,7 @@ func (s *server) restore() {
 	defer db.Close()
 	db.View(func(tx *bolt.Tx) error {
 		b := tx.Bucket([]byte(BOLTDB_BUCKET))
-		c := b.Cursor()
-
-		for k, v := c.First(); k != nil; k, v = c.Next() {
+		b.ForEach(func(k, v []byte) error {
 			rs := NewRankSet()
 			err := rs.Unmarshal(v)
 			if err != nil {
@@ -221,8 +219,8 @@ func (s *server) restore() {
 				os.Exit(-1)
 			}
 			s.ranks[id] = rs
-		}
-
+			return nil
+		})
 		return nil
 	})
 }
