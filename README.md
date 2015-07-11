@@ -8,8 +8,9 @@
 持久化采用boltdb，零配置, 数据存储在 /data， docker启动的时候，需要绑定到外部目录。           
 
 ## 性能
-数据量小于1024(暂定)的时候，采用sortedset实现, 大部分操作时间复杂度为O(n)，超过之后采用rbtree实现, 复杂度O(logN)。     
-sortedset在数据量小的时候能充分利用cpu cache，对rbtree的访问基本是全部cache miss, 所以必须在达到一定数据量之后，算法时间复杂度才能弥补cache miss.                
+数据量小于1024(暂定)的时候，采用sortedset实现, 大部分操作时间复杂度为O(n);       
+超过之后采用rbtree实现, 时间复杂度O(logN)。         
+sortedset在数据量小的时候能充分利用cpu cache，对rbtree的访问基本是全部cache miss;        所以必须在达到一定数据量之后，算法时间复杂度才能弥补cache miss.                 
 
 # 环境变量
 NSQD_HOST: eg : http://172.17.42.1:4151
