@@ -1,9 +1,14 @@
-# Ranking Service
+# Ranking Service(排名)
 [![Build Status](https://travis-ci.org/GameGophers/rank.svg)](https://travis-ci.org/GameGophers/rank)
 
-Ranking based on id & score, ranking are grouped by name, and it has persistence with boltdb
+## 设计理念
+对int32类型的id, score进行排名， 并用boltdb实现持久化。      
+排名依据score进行，可以获得范围，比如［1，100］名的列表，可以定位某个玩家的排名，比如id为1234的排名。
+排名包含无限个集合，根据id(snowflake-id)区分，用户根据业务需求创建。
 
-make sure directory /data is writable for VOLUME, boltdb will persist the ranking data file into that directory
+## 性能
+数据量小于1024的时候，采用sortedset实现,大部分操作为O(n)，超过之后采用rbtree实现O(logN)      
+sortedset在数据量小的时候能充分利用cpu cache，对rbtree的访问基本是全部cache miss，所以必须在达到一定数据量之后，算法时间复杂度才能弥补cache miss.      
 
-# environment variables
+# 环境变量
 NSQD_HOST: eg : http://172.17.42.1:4151
