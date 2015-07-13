@@ -1,7 +1,7 @@
 package main
 
 import (
-	log "github.com/GameGophers/libs/nsq-logger"
+	log "github.com/gonet2/libs/nsq-logger"
 	"gopkg.in/vmihailenco/msgpack.v2"
 	"sync"
 )

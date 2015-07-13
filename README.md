@@ -1,5 +1,5 @@
 # Ranking Service(排名)
-[![Build Status](https://travis-ci.org/GameGophers/rank.svg)](https://travis-ci.org/GameGophers/rank)
+[![Build Status](https://travis-ci.org/gonet2/rank.svg)](https://travis-ci.org/gonet2/rank)
 
 ## 设计理念
 对int32类型的id, score进行排名， 并用boltdb实现持久化。      

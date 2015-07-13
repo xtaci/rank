@@ -3,7 +3,7 @@ package main
 import (
 	"errors"
 	"fmt"
-	log "github.com/GameGophers/libs/nsq-logger"
+	log "github.com/gonet2/libs/nsq-logger"
 	"github.com/boltdb/bolt"
 	"golang.org/x/net/context"
 	"os"
