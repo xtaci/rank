@@ -14,6 +14,8 @@ It has these top-level messages:
 package proto
 
 import proto1 "github.com/golang/protobuf/proto"
+import fmt "fmt"
+import math "math"
 
 import (
 	context "golang.org/x/net/context"
@@ -21,11 +23,9 @@ import (
 )
 
 // Reference imports to suppress errors if they are not otherwise used.
-var _ context.Context
-var _ grpc.ClientConn
-
-// Reference imports to suppress errors if they are not otherwise used.
 var _ = proto1.Marshal
+var _ = fmt.Errorf
+var _ = math.Inf
 
 type Ranking struct {
 }
@@ -42,7 +42,7 @@ func (m *Ranking_Nil) String() string { return proto1.CompactTextString(m) }
 func (*Ranking_Nil) ProtoMessage()    {}
 
 type Ranking_SetId struct {
-	SetId uint64 `protobuf:"varint,1,opt" json:"SetId,omitempty"`
+	SetId uint64 `protobuf:"varint,1,opt,name=SetId" json:"SetId,omitempty"`
 }
 
 func (m *Ranking_SetId) Reset()         { *m = Ranking_SetId{} }
@@ -50,8 +50,8 @@ func (m *Ranking_SetId) String() string { return proto1.CompactTextString(m) }
 func (*Ranking_SetId) ProtoMessage()    {}
 
 type Ranking_DeleteUserRequest struct {
-	SetId  uint64 `protobuf:"varint,1,opt" json:"SetId,omitempty"`
-	UserId int32  `protobuf:"varint,2,opt" json:"UserId,omitempty"`
+	SetId  uint64 `protobuf:"varint,1,opt,name=SetId" json:"SetId,omitempty"`
+	UserId int32  `protobuf:"varint,2,opt,name=UserId" json:"UserId,omitempty"`
 }
 
 func (m *Ranking_DeleteUserRequest) Reset()         { *m = Ranking_DeleteUserRequest{} }
@@ -59,9 +59,9 @@ func (m *Ranking_DeleteUserRequest) String() string { return proto1.CompactTextS
 func (*Ranking_DeleteUserRequest) ProtoMessage()    {}
 
 type Ranking_Change struct {
-	UserId int32  `protobuf:"varint,1,opt" json:"UserId,omitempty"`
-	Score  int32  `protobuf:"varint,2,opt" json:"Score,omitempty"`
-	SetId  uint64 `protobuf:"varint,3,opt" json:"SetId,omitempty"`
+	UserId int32  `protobuf:"varint,1,opt,name=UserId" json:"UserId,omitempty"`
+	Score  int32  `protobuf:"varint,2,opt,name=Score" json:"Score,omitempty"`
+	SetId  uint64 `protobuf:"varint,3,opt,name=SetId" json:"SetId,omitempty"`
 }
 
 func (m *Ranking_Change) Reset()         { *m = Ranking_Change{} }
@@ -69,9 +69,9 @@ func (m *Ranking_Change) String() string { return proto1.CompactTextString(m) }
 func (*Ranking_Change) ProtoMessage()    {}
 
 type Ranking_Range struct {
-	A     int32  `protobuf:"varint,1,opt" json:"A,omitempty"`
-	B     int32  `protobuf:"varint,2,opt" json:"B,omitempty"`
-	SetId uint64 `protobuf:"varint,3,opt" json:"SetId,omitempty"`
+	A     int32  `protobuf:"varint,1,opt,name=A" json:"A,omitempty"`
+	B     int32  `protobuf:"varint,2,opt,name=B" json:"B,omitempty"`
+	SetId uint64 `protobuf:"varint,3,opt,name=SetId" json:"SetId,omitempty"`
 }
 
 func (m *Ranking_Range) Reset()         { *m = Ranking_Range{} }
@@ -79,8 +79,8 @@ func (m *Ranking_Range) String() string { return proto1.CompactTextString(m) }
 func (*Ranking_Range) ProtoMessage()    {}
 
 type Ranking_RankList struct {
-	UserIds []int32 `protobuf:"varint,1,rep,packed" json:"UserIds,omitempty"`
-	Scores  []int32 `protobuf:"varint,2,rep,packed" json:"Scores,omitempty"`
+	UserIds []int32 `protobuf:"varint,1,rep,packed,name=UserIds" json:"UserIds,omitempty"`
+	Scores  []int32 `protobuf:"varint,2,rep,packed,name=Scores" json:"Scores,omitempty"`
 }
 
 func (m *Ranking_RankList) Reset()         { *m = Ranking_RankList{} }
@@ -88,8 +88,8 @@ func (m *Ranking_RankList) String() string { return proto1.CompactTextString(m) 
 func (*Ranking_RankList) ProtoMessage()    {}
 
 type Ranking_Users struct {
-	UserIds []int32 `protobuf:"varint,1,rep,packed" json:"UserIds,omitempty"`
-	SetId   uint64  `protobuf:"varint,2,opt" json:"SetId,omitempty"`
+	UserIds []int32 `protobuf:"varint,1,rep,packed,name=UserIds" json:"UserIds,omitempty"`
+	SetId   uint64  `protobuf:"varint,2,opt,name=SetId" json:"SetId,omitempty"`
 }
 
 func (m *Ranking_Users) Reset()         { *m = Ranking_Users{} }
@@ -97,16 +97,17 @@ func (m *Ranking_Users) String() string { return proto1.CompactTextString(m) }
 func (*Ranking_Users) ProtoMessage()    {}
 
 type Ranking_UserList struct {
-	Ranks  []int32 `protobuf:"varint,1,rep,packed" json:"Ranks,omitempty"`
-	Scores []int32 `protobuf:"varint,2,rep,packed" json:"Scores,omitempty"`
+	Ranks  []int32 `protobuf:"varint,1,rep,packed,name=Ranks" json:"Ranks,omitempty"`
+	Scores []int32 `protobuf:"varint,2,rep,packed,name=Scores" json:"Scores,omitempty"`
 }
 
 func (m *Ranking_UserList) Reset()         { *m = Ranking_UserList{} }
 func (m *Ranking_UserList) String() string { return proto1.CompactTextString(m) }
 func (*Ranking_UserList) ProtoMessage()    {}
 
-func init() {
-}
+// Reference imports to suppress errors if they are not otherwise used.
+var _ context.Context
+var _ grpc.ClientConn
 
 // Client API for RankingService service
 
@@ -185,9 +186,9 @@ func RegisterRankingServiceServer(s *grpc.Server, srv RankingServiceServer) {
 	s.RegisterService(&_RankingService_serviceDesc, srv)
 }
 
-func _RankingService_RankChange_Handler(srv interface{}, ctx context.Context, codec grpc.Codec, buf []byte) (interface{}, error) {
+func _RankingService_RankChange_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error) (interface{}, error) {
 	in := new(Ranking_Change)
-	if err := codec.Unmarshal(buf, in); err != nil {
+	if err := dec(in); err != nil {
 		return nil, err
 	}
 	out, err := srv.(RankingServiceServer).RankChange(ctx, in)
@@ -197,9 +198,9 @@ func _RankingService_RankChange_Handler(srv interface{}, ctx context.Context, co
 	return out, nil
 }
 
-func _RankingService_DeleteSet_Handler(srv interface{}, ctx context.Context, codec grpc.Codec, buf []byte) (interface{}, error) {
+func _RankingService_DeleteSet_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error) (interface{}, error) {
 	in := new(Ranking_SetId)
-	if err := codec.Unmarshal(buf, in); err != nil {
+	if err := dec(in); err != nil {
 		return nil, err
 	}
 	out, err := srv.(RankingServiceServer).DeleteSet(ctx, in)
@@ -209,9 +210,9 @@ func _RankingService_DeleteSet_Handler(srv interface{}, ctx context.Context, cod
 	return out, nil
 }
 
-func _RankingService_DeleteUser_Handler(srv interface{}, ctx context.Context, codec grpc.Codec, buf []byte) (interface{}, error) {
+func _RankingService_DeleteUser_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error) (interface{}, error) {
 	in := new(Ranking_DeleteUserRequest)
-	if err := codec.Unmarshal(buf, in); err != nil {
+	if err := dec(in); err != nil {
 		return nil, err
 	}
 	out, err := srv.(RankingServiceServer).DeleteUser(ctx, in)
@@ -221,9 +222,9 @@ func _RankingService_DeleteUser_Handler(srv interface{}, ctx context.Context, co
 	return out, nil
 }
 
-func _RankingService_QueryRankRange_Handler(srv interface{}, ctx context.Context, codec grpc.Codec, buf []byte) (interface{}, error) {
+func _RankingService_QueryRankRange_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error) (interface{}, error) {
 	in := new(Ranking_Range)
-	if err := codec.Unmarshal(buf, in); err != nil {
+	if err := dec(in); err != nil {
 		return nil, err
 	}
 	out, err := srv.(RankingServiceServer).QueryRankRange(ctx, in)
@@ -233,9 +234,9 @@ func _RankingService_QueryRankRange_Handler(srv interface{}, ctx context.Context
 	return out, nil
 }
 
-func _RankingService_QueryUsers_Handler(srv interface{}, ctx context.Context, codec grpc.Codec, buf []byte) (interface{}, error) {
+func _RankingService_QueryUsers_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error) (interface{}, error) {
 	in := new(Ranking_Users)
-	if err := codec.Unmarshal(buf, in); err != nil {
+	if err := dec(in); err != nil {
 		return nil, err
 	}
 	out, err := srv.(RankingServiceServer).QueryUsers(ctx, in)
