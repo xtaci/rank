@@ -6,11 +6,11 @@ func Benchmark(b *testing.B) {
 	tree := Tree{}
 
 	for i := 0; i < b.N; i++ {
-		tree.Insert(100, int32(i))
+		tree.Insert(int32(i), int32(i))
 	}
 
 	for i := 0; i < b.N; i++ {
-		tree.Locate(100, int32(i))
+		tree.Locate(int32(i), int32(i))
 	}
 }
 
