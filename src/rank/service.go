@@ -3,8 +3,8 @@ package main
 import (
 	"errors"
 	"fmt"
-	log "github.com/gonet2/libs/nsq-logger"
 	"github.com/boltdb/bolt"
+	log "github.com/gonet2/libs/nsq-logger"
 	"golang.org/x/net/context"
 	"os"
 	"os/signal"
@@ -180,8 +180,13 @@ func (s *server) dump(db *bolt.DB, changes map[uint64]bool) {
 		s.lock_read(func() {
 			rs = s.ranks[k]
 		})
+
+		// rankset deletion
 		if rs == nil {
-			log.Warning("empty rankset:", k)
+			db.Update(func(tx *bolt.Tx) error {
+				b := tx.Bucket([]byte(BOLTDB_BUCKET))
+				return b.Delete([]byte(fmt.Sprint(k)))
+			})
 			continue
 		}
 
@@ -191,11 +196,9 @@ func (s *server) dump(db *bolt.DB, changes map[uint64]bool) {
 			log.Critical("cannot marshal:", err)
 			os.Exit(-1)
 		}
-
 		db.Update(func(tx *bolt.Tx) error {
 			b := tx.Bucket([]byte(BOLTDB_BUCKET))
-			err := b.Put([]byte(fmt.Sprint(k)), bin)
-			return err
+			return b.Put([]byte(fmt.Sprint(k)), bin)
 		})
 	}
 }
