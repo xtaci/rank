@@ -51,29 +51,50 @@ func (ss *SortedSet) Locate(id int32) int32 {
 
 func (ss *SortedSet) Update(id, score int32) {
 	p := sortpair{id: id, score: score}
-	old_idx := -1
-	insert_idx := len(ss.set)
+	idx := -1
+	update_idx := -1
 	for k := range ss.set {
-		if old_idx == -1 && ss.set[k].id == id {
-			old_idx = k
-		} else if insert_idx == len(ss.set) && score > ss.set[k].score { // set once
-			insert_idx = k
+		if idx == -1 && ss.set[k].id == id {
+			idx = k
+		}
+		if update_idx != -1 && score > ss.set[k].score {
+			update_idx = k
 		}
 
-		if old_idx != -1 && insert_idx != len(ss.set) { // both set, break
+		if idx != -1 && update_idx != -1 { // both set, break
 			break
 		}
 	}
-
-	if old_idx == -1 {
+	if idx == -1 {
 		return
 	}
 
-	ss.set = append(ss.set[:old_idx], ss.set[old_idx+1:]...)
-	if insert_idx > old_idx {
-		insert_idx--
+	n := len(ss.set) - 1
+	// smallest
+	if update_idx == -1 {
+		update_idx = n
 	}
-	ss.set = append(ss.set[:insert_idx], append([]sortpair{p}, ss.set[insert_idx:]...)...)
+
+	// shift
+	if update_idx > idx {
+		ss.lshift(idx, update_idx, p)
+	} else if update_idx < idx {
+		ss.rshift(update_idx, idx, p)
+	} else {
+		ss.set[idx] = p
+	}
+}
+
+// shift left [i,j]
+func (ss *SortedSet) lshift(i, j int, p sortpair) {
+	copy(ss.set[i:j], ss.set[i+1:j])
+	ss.set[j] = p
+}
+
+// right left [i,j]
+func (ss *SortedSet) rshift(i, j int, p sortpair) {
+	copy(ss.set[i+1:j], ss.set[i:j])
+	ss.set[i] = p
 }
 
 func (ss *SortedSet) GetList(a, b int) (ids []int32, scores []int32) {

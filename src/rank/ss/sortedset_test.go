@@ -28,3 +28,14 @@ func TestSS(t *testing.T) {
 	t.Log(ss.GetList(1, 2))
 	//	t.Log(ss.GetList(0, 9))
 }
+
+func TestUpdate(t *testing.T) {
+	ss := SortedSet{}
+	ss.Insert(1, 1)
+	ss.Update(1, 10)
+	t.Log(ss.set)
+	ss.Insert(2, 2)
+	ss.Insert(3, 4)
+	ss.Update(1, 0)
+	t.Log(ss.set)
+}
