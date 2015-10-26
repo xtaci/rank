@@ -58,7 +58,7 @@ func (ss *SortedSet) Update(id, score int32) {
 			idx = k
 		}
 		if update_idx != -1 && score > ss.set[k].score {
-			update_idx = k // insert before this
+			update_idx = k // insert point
 		}
 
 		if idx != -1 && update_idx != -1 { // both set, break
