@@ -91,7 +91,7 @@ func (ss *SortedSet) lshift(i, j int, p sortpair) {
 	ss.set[j] = p
 }
 
-// right left [i,j]
+// shift right [i,j]
 func (ss *SortedSet) rshift(i, j int, p sortpair) {
 	copy(ss.set[i+1:j+1], ss.set[i:j+1])
 	ss.set[i] = p
