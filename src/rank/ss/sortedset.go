@@ -57,7 +57,7 @@ func (ss *SortedSet) Update(id, score int32) {
 		if idx == -1 && ss.set[k].id == id {
 			idx = k
 		}
-		if update_idx != -1 && score > ss.set[k].score {
+		if update_idx == -1 && score > ss.set[k].score {
 			update_idx = k // insert point
 		}
 
@@ -85,15 +85,15 @@ func (ss *SortedSet) Update(id, score int32) {
 	}
 }
 
-// shift left [i,j)
+// shift left [i,j]
 func (ss *SortedSet) lshift(i, j int, p sortpair) {
-	copy(ss.set[i:j], ss.set[i+1:j])
+	copy(ss.set[i:j+1], ss.set[i+1:j+1])
 	ss.set[j] = p
 }
 
-// right left [i,j)
+// right left [i,j]
 func (ss *SortedSet) rshift(i, j int, p sortpair) {
-	copy(ss.set[i+1:j], ss.set[i:j])
+	copy(ss.set[i+1:j+1], ss.set[i:j+1])
 	ss.set[i] = p
 }
 
