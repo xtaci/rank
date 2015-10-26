@@ -58,7 +58,7 @@ func (ss *SortedSet) Update(id, score int32) {
 			idx = k
 		}
 		if update_idx != -1 && score > ss.set[k].score {
-			update_idx = k
+			update_idx = k // insert before this
 		}
 
 		if idx != -1 && update_idx != -1 { // both set, break
@@ -85,13 +85,13 @@ func (ss *SortedSet) Update(id, score int32) {
 	}
 }
 
-// shift left [i,j]
+// shift left [i,j)
 func (ss *SortedSet) lshift(i, j int, p sortpair) {
 	copy(ss.set[i:j], ss.set[i+1:j])
 	ss.set[j] = p
 }
 
-// right left [i,j]
+// right left [i,j)
 func (ss *SortedSet) rshift(i, j int, p sortpair) {
 	copy(ss.set[i+1:j], ss.set[i:j])
 	ss.set[i] = p
