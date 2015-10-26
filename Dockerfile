@@ -9,3 +9,4 @@ RUN rm -rf pkg src .godeps
 ENTRYPOINT /go/bin/rank
 RUN mkdir /data
 VOLUME /data
+EXPOSE 50001
