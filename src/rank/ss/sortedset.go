@@ -20,15 +20,21 @@ func (ss *SortedSet) Insert(id, score int32) {
 		return
 	}
 
+	// grow
+	ss.set = append(ss.set, p)
+	update_idx := -1
 	for k := range ss.set {
 		if score > ss.set[k].score {
-			ss.set = append(ss.set[:k], append([]sortpair{p}, ss.set[k:]...)...)
-			return
+			update_idx = k
+			break
 		}
 	}
 
-	// smallest
-	ss.set = append(ss.set, p)
+	if update_idx == -1 { // already appended
+		return
+	}
+
+	ss.rshift(update_idx, len(ss.set)-1, p)
 }
 
 func (ss *SortedSet) Delete(id int32) {
