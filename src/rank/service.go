@@ -176,33 +176,28 @@ func (s *server) open_db() *bolt.DB {
 }
 
 func (s *server) dump(db *bolt.DB, changes map[uint64]bool) {
-	for k := range changes {
-		// marshal
-		var rs *RankSet
-		s.lock_read(func() {
-			rs = s.ranks[k]
-		})
-
-		// rankset deletion
-		if rs == nil {
-			db.Update(func(tx *bolt.Tx) error {
-				b := tx.Bucket([]byte(BOLTDB_BUCKET))
-				return b.Delete([]byte(fmt.Sprint(k)))
+	db.Update(func(tx *bolt.Tx) error {
+		b := tx.Bucket([]byte(BOLTDB_BUCKET))
+		for k := range changes {
+			// marshal
+			var rs *RankSet
+			s.lock_read(func() {
+				rs = s.ranks[k]
 			})
-			continue
-		}
 
-		// serialization and save
-		bin, err := rs.Marshal()
-		if err != nil {
-			log.Critical("cannot marshal:", err)
-			os.Exit(-1)
+			if rs == nil { // rankset deletion
+				b.Delete([]byte(fmt.Sprint(k)))
+			} else { // serialization and save
+				bin, err := rs.Marshal()
+				if err != nil {
+					log.Critical(err)
+					continue
+				}
+				b.Put([]byte(fmt.Sprint(k)), bin)
+			}
 		}
-		db.Update(func(tx *bolt.Tx) error {
-			b := tx.Bucket([]byte(BOLTDB_BUCKET))
-			return b.Put([]byte(fmt.Sprint(k)), bin)
-		})
-	}
+		return nil
+	})
 }
 
 func (s *server) restore() {
