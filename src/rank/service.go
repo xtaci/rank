@@ -215,7 +215,7 @@ func (s *server) restore() {
 			}
 			id, err := strconv.ParseUint(string(k), 0, 64)
 			if err != nil {
-				log.Critical("chat data corrupted:", err)
+				log.Critical("rank data corrupted:", err)
 				os.Exit(-1)
 			}
 			s.ranks[id] = rs
