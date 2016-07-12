@@ -10,8 +10,8 @@ import (
 	"syscall"
 	"time"
 
+	log "github.com/Sirupsen/logrus"
 	"github.com/boltdb/bolt"
-	log "github.com/gonet2/libs/nsq-logger"
 	"golang.org/x/net/context"
 )
 
@@ -161,14 +161,14 @@ func (s *server) persistence_task() {
 func (s *server) open_db() *bolt.DB {
 	db, err := bolt.Open(BOLTDB_FILE, 0600, nil)
 	if err != nil {
-		log.Critical(err)
+		log.Panic(err)
 		os.Exit(-1)
 	}
 	// create bulket
 	db.Update(func(tx *bolt.Tx) error {
 		_, err := tx.CreateBucketIfNotExists([]byte(BOLTDB_BUCKET))
 		if err != nil {
-			log.Criticalf("create bucket: %s", err)
+			log.Panicf("create bucket: %s", err)
 			os.Exit(-1)
 		}
 		return nil
@@ -191,7 +191,7 @@ func (s *server) dump(db *bolt.DB, changes map[uint64]bool) {
 			} else { // serialization and save
 				bin, err := rs.Marshal()
 				if err != nil {
-					log.Critical(err)
+					log.Error(err)
 					continue
 				}
 				b.Put([]byte(fmt.Sprint(k)), bin)
@@ -211,12 +211,12 @@ func (s *server) restore() {
 			rs := NewRankSet()
 			err := rs.Unmarshal(v)
 			if err != nil {
-				log.Critical("rank data corrupted:", err)
+				log.Panic("rank data corrupted:", err)
 				os.Exit(-1)
 			}
 			id, err := strconv.ParseUint(string(k), 0, 64)
 			if err != nil {
-				log.Critical("rank data corrupted:", err)
+				log.Panic("rank data corrupted:", err)
 				os.Exit(-1)
 			}
 			s.ranks[id] = rs

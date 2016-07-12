@@ -1,9 +1,10 @@
 package main
 
 import (
-	log "github.com/gonet2/libs/nsq-logger"
-	"gopkg.in/vmihailenco/msgpack.v2"
 	"sync"
+
+	log "github.com/Sirupsen/logrus"
+	"gopkg.in/vmihailenco/msgpack.v2"
 )
 
 import (
@@ -46,14 +47,14 @@ func (r *RankSet) toggle() {
 		}
 		r.S.Clear()
 		r.Type = RBTREE
-		log.Tracef("convert sortedset to rbtree %v", len(r.M))
+		log.Debugf("convert sortedset to rbtree %v", len(r.M))
 	case RBTREE:
 		for k, v := range r.M {
 			r.S.Insert(v, k)
 		}
 		r.R.Clear()
 		r.Type = SORTEDSET
-		log.Tracef("convert rbtree to sortedset %v", len(r.M))
+		log.Debugf("convert rbtree to sortedset %v", len(r.M))
 	}
 }
 
@@ -174,13 +175,13 @@ func (r *RankSet) Unmarshal(bin []byte) error {
 			r.R.Insert(score, id)
 		}
 		r.Type = RBTREE
-		log.Tracef("rank restored into rbtree %v", len(r.M))
+		log.Debugf("rank restored into rbtree %v", len(r.M))
 	} else {
 		for id, score := range m {
 			r.S.Insert(id, score)
 		}
 		r.Type = SORTEDSET
-		log.Tracef("rank restored into sortedset %v", len(r.M))
+		log.Debugf("rank restored into sortedset %v", len(r.M))
 	}
 
 	return nil
