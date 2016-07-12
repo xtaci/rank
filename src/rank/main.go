@@ -1,15 +1,16 @@
 package main
 
 import (
+	"net"
+	"os"
+
 	log "github.com/gonet2/libs/nsq-logger"
 	_ "github.com/gonet2/libs/statsd-pprof"
 	"google.golang.org/grpc"
-	"net"
-	"os"
 )
 
 import (
-	pb "proto"
+	pb "rank/proto"
 )
 
 const (

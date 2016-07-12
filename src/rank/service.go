@@ -3,19 +3,20 @@ package main
 import (
 	"errors"
 	"fmt"
-	"github.com/boltdb/bolt"
-	log "github.com/gonet2/libs/nsq-logger"
-	"golang.org/x/net/context"
 	"os"
 	"os/signal"
 	"strconv"
 	"sync"
 	"syscall"
 	"time"
+
+	"github.com/boltdb/bolt"
+	log "github.com/gonet2/libs/nsq-logger"
+	"golang.org/x/net/context"
 )
 
 import (
-	. "proto"
+	. "rank/proto"
 )
 
 const (
