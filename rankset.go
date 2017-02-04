@@ -72,7 +72,7 @@ func (r *RankSet) Update(id, newscore int32) {
 		case SORTEDSET:
 			r.S.Insert(id, newscore)
 		case RBTREE:
-			r.R.Insert(id, newscore)
+			r.R.Insert(newscore, id)
 		}
 	} else {
 		switch r.Type {
